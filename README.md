@@ -33,12 +33,18 @@ flowchart TD
 | Layer | Tech | Role |
 |---|---|---|
 | Frontend | Vite + React (TS) | "Generate" button, renders latest newsletter, download links |
-| Backend | FastAPI, deployed as a Vercel Python serverless function (`api/index.py`) | Orchestrates the pipeline, serves `/api/generate`, `/api/latest`, `/api/runs/{id}/export` |
+| Backend | FastAPI, deployed as a Vercel Python serverless function (`api/index.py`) | Orchestrates the pipeline, serves `/api/generate`, `/api/latest`, `/api/runs/{id}/export`, `/api/modal-status` |
 | Sourcing | Tavily Search API | Real-time news search across a fixed set of FMCG-deal queries |
 | Scoring/drafting | Qwen3.8-27B served via Modal Endpoints (SGLang, OpenAI-compatible `/v1/chat/completions`, bearer-token auth) | Confirms relevance + extracts deal fields; drafts the structured newsletter |
 | Storage | Supabase (Postgres) | One timestamped row per pipeline run |
 
 Everything runs **on-demand**: a user click triggers the full pipeline synchronously, writes the result to Supabase, and the frontend re-renders with the new run.
+
+### Modal cold starts
+
+The LLM container scales to zero when idle, so it isn't always warm. A fresh request wakes it, but that first request can 503 immediately while the container spins up (a 27B model's weights can take a couple of minutes to load), rather than queuing and waiting. In practice this means **Generate can fail if the model isn't already live**.
+
+To make this visible, the UI has a **"Warm Up" / "Recheck"** control next to Generate (`ModalStatusBadge`) backed by `GET /api/modal-status` (`check_status()` in `backend/pipeline/modal_client.py`), which pings the endpoint's lightweight `/v1/models` route every 5 seconds — each ping also serves as a wake-up trigger — and shows a status dot: grey (unknown) → amber pulsing ("Starting…") → green ("Live"). Generate itself isn't blocked on this status; it's there so you can confirm the model is actually up before running the full pipeline instead of finding out via a failed run.
 
 ## Pipeline: ingestion → cleaning → scoring → newsletter
 
