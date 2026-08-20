@@ -66,7 +66,7 @@ def score_relevance(articles: list[Article]) -> list[Article]:
         article.is_relevant = bool(item.get("is_relevant", False))
         article.relevance_score = float(item.get("relevance_score", 0.0))
         article.deal_type = item.get("deal_type")
-        article.companies = item.get("companies", [])
+        article.companies = item.get("companies") or []
         article.deal_amount = item.get("deal_amount")
         article.one_line_summary = item.get("one_line_summary")
         if article.is_relevant:

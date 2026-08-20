@@ -63,6 +63,10 @@ def chat_json(system_prompt: str, user_content: str) -> dict:
             ],
             "temperature": 0.1,
             "max_tokens": 2048,
+            # Qwen3 is a reasoning model that otherwise burns the token budget
+            # on a separate `reasoning_content` field and can leave `content`
+            # empty; we only ever parse `content`, so thinking mode is off.
+            "chat_template_kwargs": {"enable_thinking": False},
         },
         timeout=MODAL_TIMEOUT_SECONDS,
     )
