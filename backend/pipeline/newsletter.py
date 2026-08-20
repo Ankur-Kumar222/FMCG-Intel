@@ -3,8 +3,11 @@ credibility-tagged article set into a structured newsletter (markdown +
 JSON sections)."""
 from __future__ import annotations
 
+import json
+
 from backend.models.schemas import Article, NewsletterDeal, NewsletterSection
-from backend.pipeline.modal_client import infer
+from backend.pipeline.modal_client import chat_json
+from backend.pipeline.prompts import NEWSLETTER_SYSTEM_PROMPT
 
 
 def draft_newsletter(articles: list[Article]) -> tuple[str, list[NewsletterSection]]:
@@ -27,7 +30,7 @@ def draft_newsletter(articles: list[Article]) -> tuple[str, list[NewsletterSecti
             for a in articles
         ]
     }
-    result = infer("draft_newsletter", payload)
+    result = chat_json(NEWSLETTER_SYSTEM_PROMPT, json.dumps(payload))
 
     markdown = result.get("markdown", "")
     sections_raw = result.get("sections", [])

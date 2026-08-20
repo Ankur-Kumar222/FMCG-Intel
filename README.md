@@ -18,7 +18,7 @@ flowchart TD
     Tavily --> Dedup["dedup.py\nexact URL + fuzzy title match"]
     Dedup --> Cred["credibility.py\nstatic domain-tier lookup"]
     Cred --> Prefilter["relevance.py\nkeyword prefilter"]
-    Prefilter -->|batched call| Modal["Modal: open-source LLM\nweb endpoint"]
+    Prefilter -->|batched call| Modal["Modal Endpoints: Qwen3.8-27B\n(SGLang, OpenAI-compatible API)"]
     Modal -->|relevance + extracted deal fields| Prefilter
     Prefilter --> Draft["newsletter.py"]
     Draft -->|batched call| Modal
@@ -35,7 +35,7 @@ flowchart TD
 | Frontend | Vite + React (TS) | "Generate" button, renders latest newsletter, download links |
 | Backend | FastAPI, deployed as a Vercel Python serverless function (`api/index.py`) | Orchestrates the pipeline, serves `/api/generate`, `/api/latest`, `/api/runs/{id}/export` |
 | Sourcing | Tavily Search API | Real-time news search across a fixed set of FMCG-deal queries |
-| Scoring/drafting | Open-source LLM self-hosted on Modal, called over HTTP | Confirms relevance + extracts deal fields; drafts the structured newsletter |
+| Scoring/drafting | Qwen3.8-27B served via Modal Endpoints (SGLang, OpenAI-compatible `/v1/chat/completions`, bearer-token auth) | Confirms relevance + extracts deal fields; drafts the structured newsletter |
 | Storage | Supabase (Postgres) | One timestamped row per pipeline run |
 
 Everything runs **on-demand**: a user click triggers the full pipeline synchronously, writes the result to Supabase, and the frontend re-renders with the new run.
@@ -56,7 +56,7 @@ Everything runs **on-demand**: a user click triggers the full pipeline synchrono
 
 4. **Relevance scoring** (`backend/pipeline/relevance.py`) — Two stages, cheapest first:
    - **Keyword prefilter**: an article must mention both an FMCG/category term (e.g. "consumer goods", "packaged food", "beverage") **and** a deal term (e.g. "acquisition", "stake", "funding", "merger") to survive. This removes the obviously-irrelevant majority for free.
-   - **LLM confirmation**: survivors are sent to the Modal-hosted LLM in **one batched call**, which confirms relevance and extracts structured deal fields (companies, deal type, amount, one-line summary) — reused directly by the newsletter drafter, avoiding a second LLM pass.
+   - **LLM confirmation**: survivors are sent to the Modal-hosted Qwen3.8-27B endpoint in **one batched call**, which confirms relevance and extracts structured deal fields (companies, deal type, amount, one-line summary) — reused directly by the newsletter drafter, avoiding a second LLM pass.
 
 5. **Newsletter drafting** (`backend/pipeline/newsletter.py`) — One more batched Modal call turns the deduped, relevant, credibility-tagged articles into a structured newsletter: grouped sections (e.g. "Top Deals", "Funding Rounds"), each deal with a headline, companies, deal type/size, a 1-2 sentence summary, sources, and credibility tier. Stored as both markdown and structured JSON.
 
@@ -78,7 +78,6 @@ fmcg-intel/
 │   ├── db/                # Supabase client
 │   ├── models/            # Pydantic schemas
 │   └── orchestrator.py    # runs the full pipeline end-to-end
-├── modal_app/llm_service.py  # Modal app: open-source LLM web endpoint
 ├── supabase/schema.sql   # newsletter_runs table DDL
 └── tests/                 # pytest unit tests for dedup + credibility logic
 ```
@@ -89,10 +88,9 @@ fmcg-intel/
 ```bash
 python -m venv .venv && source .venv/bin/activate
 pip install -r requirements-dev.txt
-cp .env.example .env   # fill in TAVILY_API_KEY, MODAL_LLM_ENDPOINT_URL, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
+cp .env.example .env   # fill in TAVILY_API_KEY, MODAL_LLM_ENDPOINT_URL, MODAL_API_TOKEN, SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY
 
-modal serve modal_app/llm_service.py   # in one terminal — hosts the LLM endpoint
-uvicorn api.index:app --reload --port 8000   # in another
+uvicorn api.index:app --reload --port 8000
 ```
 
 **Frontend**
@@ -109,9 +107,9 @@ pytest
 
 ## Deploying
 
-1. **Modal**: `modal deploy modal_app/llm_service.py`, copy the printed endpoint URL into `MODAL_LLM_ENDPOINT_URL`.
+1. **Modal**: deploy Qwen3.8-27B (or another instruct model) via Modal's Endpoints product with authentication turned on. Copy the endpoint's base URL into `MODAL_LLM_ENDPOINT_URL` and its bearer proxy token into `MODAL_API_TOKEN`. The backend calls `POST {MODAL_LLM_ENDPOINT_URL}/v1/chat/completions` (OpenAI-compatible) with `Authorization: Bearer <token>`.
 2. **Supabase**: create a project, run `supabase/schema.sql` in the SQL editor, grab the project URL + service role key.
-3. **Vercel**: import this repo. It builds the Vite frontend (`frontend/`) as the static site and deploys `api/index.py` as a Python serverless function (routing configured in `vercel.json`). Set `TAVILY_API_KEY`, `MODAL_LLM_ENDPOINT_URL`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` as environment variables in the Vercel project settings.
+3. **Vercel**: import this repo. It builds the Vite frontend (`frontend/`) as the static site and deploys `api/index.py` as a Python serverless function (routing configured in `vercel.json`). Set `TAVILY_API_KEY`, `MODAL_LLM_ENDPOINT_URL`, `MODAL_API_TOKEN`, `MODAL_MODEL_NAME`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` as environment variables in the Vercel project settings.
 
 ## Deliverables checklist
 - [x] Demo app (Vercel) — link above

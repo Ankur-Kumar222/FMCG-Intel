@@ -12,8 +12,11 @@ Two stages, in order of cost:
 """
 from __future__ import annotations
 
+import json
+
 from backend.models.schemas import Article
-from backend.pipeline.modal_client import infer
+from backend.pipeline.modal_client import chat_json
+from backend.pipeline.prompts import RELEVANCE_SYSTEM_PROMPT
 
 FMCG_TERMS = [
     "fmcg", "consumer goods", "packaged food", "beverage", "snack", "dairy",
@@ -52,7 +55,7 @@ def score_relevance(articles: list[Article]) -> list[Article]:
             for i, a in enumerate(candidates)
         ]
     }
-    result = infer("score_relevance", payload)
+    result = chat_json(RELEVANCE_SYSTEM_PROMPT, json.dumps(payload))
 
     relevant: list[Article] = []
     for item in result.get("results", []):
