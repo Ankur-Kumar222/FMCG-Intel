@@ -71,7 +71,7 @@ To make this visible, the UI has a **"Warm Up" / "Recheck"** control next to Gen
 ### Assumptions worth calling out
 - Credibility is a static allowlist, not a live reputation score — it's transparent and auditable but needs manual upkeep as new trade outlets appear.
 - Near-duplicate detection compares titles only (not full body text) — cheap and effective for deal headlines, but could in principle merge two distinct deals with coincidentally similar titles (threshold tuned to 85 to keep this rare).
-- Relevance and deal-field extraction rely on the LLM's read of the title/snippet only, not the full article body — kept deliberately lightweight given Vercel's serverless execution time budget.
+- Relevance and deal-field extraction rely on the LLM's read of the title/snippet only, not the full article body — kept deliberately lightweight to keep each batched LLM call fast, not because of a platform time limit (Vercel's Fluid compute defaults to a 300s function duration, well above what this pipeline needs).
 
 ## Repo layout
 
@@ -115,7 +115,7 @@ pytest
 
 1. **Modal**: deploy Qwen3.8-27B (or another instruct model) via Modal's Endpoints product with authentication turned on. Copy the endpoint's base URL into `MODAL_LLM_ENDPOINT_URL` and its bearer proxy token into `MODAL_API_TOKEN`. The backend calls `POST {MODAL_LLM_ENDPOINT_URL}/v1/chat/completions` (OpenAI-compatible) with `Authorization: Bearer <token>`.
 2. **Supabase**: create a project, run `supabase/schema.sql` in the SQL editor, grab the project URL + service role key.
-3. **Vercel**: import this repo. It builds the Vite frontend (`frontend/`) as the static site and deploys `api/index.py` as a Python serverless function (routing configured in `vercel.json`). Set `TAVILY_API_KEY`, `MODAL_LLM_ENDPOINT_URL`, `MODAL_API_TOKEN`, `MODAL_MODEL_NAME`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` as environment variables in the Vercel project settings.
+3. **Vercel**: import this repo. `vercel.json` defines two [Services](https://vercel.com/docs/services) sharing one deployment — `frontend` (root `frontend/`, auto-detected as Vite) and `backend` (root `.`, entrypoint `api.index:app`, a FastAPI service with `maxDuration: 300`). Requests to `/api/*` route to the backend, everything else to the frontend. Set `TAVILY_API_KEY`, `MODAL_LLM_ENDPOINT_URL`, `MODAL_API_TOKEN`, `MODAL_MODEL_NAME`, `SUPABASE_URL`, `SUPABASE_SERVICE_ROLE_KEY` as environment variables in the Vercel project settings.
 
 ## Deliverables checklist
 - [x] Demo app (Vercel) — link above
