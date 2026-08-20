@@ -7,9 +7,12 @@ interface Props {
 export default function DownloadButtons({ runId }: Props) {
   return (
     <div className="downloads">
-      <a href={exportUrl(runId, "csv")}>Download CSV</a>
-      <a href={exportUrl(runId, "json")}>Download JSON</a>
-      <a href={exportUrl(runId, "docx")}>Download Newsletter (DOCX)</a>
+      <span className="downloads-label">Available Formats</span>
+      <a href={exportUrl(runId, "csv")}>Raw Data (CSV)</a>
+      <span className="downloads-sep">/</span>
+      <a href={exportUrl(runId, "json")}>Raw Data (JSON)</a>
+      <span className="downloads-sep">/</span>
+      <a href={exportUrl(runId, "docx")}>Newsletter (DOCX)</a>
     </div>
   );
 }

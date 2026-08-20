@@ -1,57 +1,402 @@
+:root {
+  --ink: #1c1a15;
+  --ink-soft: #4a453b;
+  --paper: #f7f2e4;
+  --paper-panel: #efe8d6;
+  --rule: #1c1a15;
+  --rule-soft: #c9c0a8;
+  --accent-red: #9c2b1f;
+  --tier-a-bg: #f4ebd0;
+  --tier-a-ink: #7a5a12;
+  --tier-b-bg: #eef1e8;
+  --tier-b-ink: #3d5a3a;
+  --tier-c-bg: transparent;
+  --tier-c-ink: #6b6455;
+}
+
+* {
+  box-sizing: border-box;
+}
+
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 0 1rem;
-  color: #1a1a1a;
+  margin: 0;
+  background: #ded5b8;
+  color: var(--ink);
+  font-family: "Source Serif 4", Georgia, "Times New Roman", serif;
 }
 
-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
+.page {
+  max-width: 880px;
+  margin: 2.5rem auto;
+  background: var(--paper);
+  padding: 2.5rem clamp(1.25rem, 4vw, 3.5rem) 3rem;
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.18);
+  border: 1px solid var(--rule-soft);
 }
 
-button {
-  padding: 0.6rem 1.2rem;
+/* ---------- Masthead ---------- */
+
+.masthead {
+  text-align: center;
+  border-bottom: 5px double var(--rule);
+  padding-bottom: 1.25rem;
+  margin-bottom: 0.75rem;
+}
+
+.masthead-eyebrow {
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 0.7rem;
+  color: var(--ink-soft);
+  margin: 0 0 0.4rem;
+}
+
+.masthead-title {
+  font-family: "Playfair Display", Georgia, serif;
+  font-weight: 900;
+  font-size: clamp(2.4rem, 6vw, 3.75rem);
+  letter-spacing: -0.01em;
+  margin: 0;
+  line-height: 1.05;
+}
+
+.masthead-tagline {
+  font-style: italic;
+  color: var(--ink-soft);
+  margin: 0.5rem 0 0;
   font-size: 1rem;
+}
+
+/* ---------- Dateline / toolbar ---------- */
+
+.dateline-bar {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.5rem 0.6rem;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 0.85rem;
+  margin-bottom: 2rem;
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  color: var(--ink-soft);
+}
+
+.dateline-divider {
+  opacity: 0.5;
+}
+
+.dateline-spacer {
+  flex: 1;
+}
+
+.run-button {
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 0.7rem;
+  background: var(--ink);
+  color: var(--paper);
+  border: 1px solid var(--ink);
+  padding: 0.55rem 1.1rem;
   cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
 }
 
-.updated-at {
-  color: #666;
+.run-button:hover:not(:disabled) {
+  background: var(--paper);
+  color: var(--ink);
+}
+
+.run-button:disabled {
+  cursor: default;
+  opacity: 0.6;
+}
+
+/* ---------- Notices ---------- */
+
+.correction-notice {
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  padding: 0.85rem 1.1rem;
+  margin-bottom: 1.75rem;
   font-size: 0.9rem;
 }
 
-.error {
-  color: #b00020;
+.correction-notice.standalone {
+  margin-top: 0;
 }
 
-.deal {
-  border-left: 3px solid #ddd;
-  padding-left: 1rem;
-  margin-bottom: 1.5rem;
+.printing-notice {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1rem;
+  padding: 3.5rem 1rem;
+  text-align: center;
+  font-style: italic;
+  color: var(--ink-soft);
 }
 
-.meta {
-  font-size: 0.9rem;
-  color: #444;
+.printing-spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid var(--rule-soft);
+  border-top-color: var(--ink);
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
 }
 
-.tier {
-  display: inline-block;
-  padding: 0.1rem 0.4rem;
-  border-radius: 4px;
-  font-size: 0.75rem;
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---------- Stats strip ---------- */
+
+.stats-strip {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+  border-top: 1px solid var(--rule);
+  border-bottom: 1px solid var(--rule);
+  margin-bottom: 2.25rem;
+}
+
+.stat-box {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 0.5rem;
+  border-left: 1px solid var(--rule-soft);
+}
+
+.stat-box:first-child {
+  border-left: none;
+}
+
+.stat-value {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  font-size: 1.9rem;
+}
+
+.stat-label {
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-top: 0.15rem;
+  text-align: center;
+}
+
+/* ---------- Newsletter body ---------- */
+
+.news-section {
+  margin-bottom: 2.5rem;
+}
+
+.section-heading {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  font-size: 1.1rem;
+  border-bottom: 3px double var(--rule);
+  padding-bottom: 0.4rem;
+  margin: 0 0 1.25rem;
+}
+
+.deals-grid {
+  display: block;
+}
+
+@media (min-width: 720px) {
+  .deals-grid {
+    column-count: 2;
+    column-gap: 2.75rem;
+  }
+
+  .deals-grid > .deal-card {
+    column-rule: none;
+  }
+}
+
+.deal-card {
+  break-inside: avoid;
+  margin-bottom: 1.9rem;
+  border-bottom: 1px solid var(--rule-soft);
+  padding-bottom: 1.5rem;
+}
+
+.deal-card.lead-story {
+  column-span: all;
+  border-bottom: 1px solid var(--rule);
+  padding-bottom: 1.75rem;
+}
+
+.deal-headline {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  font-size: 1.15rem;
+  line-height: 1.3;
+  margin: 0 0 0.55rem;
+}
+
+.lead-story .deal-headline {
+  font-size: clamp(1.5rem, 3vw, 1.85rem);
+}
+
+.deal-summary {
+  margin: 0 0 0.9rem;
+  line-height: 1.65;
+  text-align: justify;
+  hyphens: auto;
+}
+
+.lead-story .deal-summary::first-letter {
+  font-family: "Playfair Display", serif;
+  font-weight: 900;
+  font-size: 3.4rem;
+  float: left;
+  line-height: 0.8;
+  padding: 0.05em 0.08em 0 0;
+}
+
+.deal-facts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.9rem 1.6rem;
+  margin: 0 0 0.9rem;
+}
+
+.deal-facts > div {
+  min-width: 90px;
+}
+
+.deal-facts dt {
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  font-size: 0.6rem;
+  letter-spacing: 0.08em;
+  color: var(--ink-soft);
+  margin-bottom: 0.15rem;
+}
+
+.deal-facts dd {
+  margin: 0;
   font-weight: 600;
+  font-size: 0.92rem;
 }
 
-.tier-A { background: #d7f5dd; color: #14632e; }
-.tier-B { background: #fff3cd; color: #7a5c00; }
-.tier-C { background: #f0f0f0; color: #666; }
+.deal-facts dd.capitalize {
+  text-transform: capitalize;
+}
+
+.deal-sources {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  font-family: "DM Mono", monospace;
+  font-size: 0.68rem;
+}
+
+.credibility-badge {
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  padding: 0.18rem 0.5rem;
+  border: 1px solid currentColor;
+  border-radius: 2px;
+}
+
+.credibility-badge.tier-A {
+  background: var(--tier-a-bg);
+  color: var(--tier-a-ink);
+}
+
+.credibility-badge.tier-B {
+  background: var(--tier-b-bg);
+  color: var(--tier-b-ink);
+}
+
+.credibility-badge.tier-C {
+  background: var(--tier-c-bg);
+  color: var(--tier-c-ink);
+  border-style: dashed;
+}
+
+.source-list {
+  color: var(--ink-soft);
+}
+
+/* ---------- Empty state ---------- */
+
+.empty-front-page {
+  border: 1px dashed var(--rule-soft);
+  padding: 3rem 1.5rem;
+  text-align: center;
+  color: var(--ink-soft);
+}
+
+.empty-headline {
+  font-family: "Playfair Display", serif;
+  font-weight: 700;
+  font-size: 1.3rem;
+  color: var(--ink);
+  margin: 0 0 0.5rem;
+}
+
+/* ---------- Footer ---------- */
+
+.masthead-footer {
+  border-top: 3px double var(--rule);
+  margin-top: 2.5rem;
+  padding-top: 1.25rem;
+  text-align: center;
+}
 
 .downloads {
-  margin-top: 2rem;
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.05em;
   display: flex;
-  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.downloads-label {
+  color: var(--ink-soft);
+  margin-right: 0.3rem;
+}
+
+.downloads-sep {
+  color: var(--rule-soft);
+}
+
+.downloads a {
+  color: var(--ink);
+  text-decoration: none;
+  border-bottom: 1px solid var(--ink);
+}
+
+.downloads a:hover {
+  color: var(--accent-red);
+  border-color: var(--accent-red);
+}
+
+.colophon {
+  font-style: italic;
+  font-size: 0.78rem;
+  color: var(--ink-soft);
+  max-width: 42rem;
+  margin: 0 auto;
+  line-height: 1.5;
 }

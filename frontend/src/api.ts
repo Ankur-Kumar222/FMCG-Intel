@@ -1,8 +1,10 @@
+export type CredibilityTier = "A" | "B" | "C";
+
 export interface Article {
   title: string;
   url: string;
   source_domain: string;
-  credibility_tier: "A" | "B" | "C" | null;
+  credibility_tier: CredibilityTier | null;
   is_relevant: boolean | null;
   deal_type: string | null;
   companies: string[];
@@ -18,7 +20,7 @@ export interface NewsletterDeal {
   deal_amount: string | null;
   summary: string;
   sources: string[];
-  credibility_tier: "A" | "B" | "C";
+  credibility_tier: CredibilityTier;
 }
 
 export interface NewsletterSection {

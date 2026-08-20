@@ -30,7 +30,7 @@ def draft_newsletter(articles: list[Article]) -> tuple[str, list[NewsletterSecti
             for a in articles
         ]
     }
-    result = chat_json(NEWSLETTER_SYSTEM_PROMPT, json.dumps(payload))
+    result = chat_json(NEWSLETTER_SYSTEM_PROMPT, json.dumps(payload), max_tokens=6000)
 
     markdown = result.get("markdown", "")
     sections_raw = result.get("sections", [])

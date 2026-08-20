@@ -5,8 +5,8 @@ interface Props {
 
 export default function RunButton({ onClick, loading }: Props) {
   return (
-    <button onClick={onClick} disabled={loading}>
-      {loading ? "Generating…" : "Generate Newsletter"}
+    <button className="run-button" onClick={onClick} disabled={loading}>
+      {loading ? "Printing…" : "Generate Edition"}
     </button>
   );
 }

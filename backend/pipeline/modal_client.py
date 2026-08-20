@@ -12,7 +12,7 @@ import re
 
 import httpx
 
-MODAL_TIMEOUT_SECONDS = 60
+MODAL_TIMEOUT_SECONDS = 120
 
 
 def _base_url() -> str:
@@ -49,7 +49,7 @@ def _extract_json(text: str) -> dict:
         return json.loads(match.group(0))
 
 
-def chat_json(system_prompt: str, user_content: str) -> dict:
+def chat_json(system_prompt: str, user_content: str, max_tokens: int = 4096) -> dict:
     """Call the OpenAI-compatible chat completions endpoint and parse the
     assistant's reply as JSON."""
     response = httpx.post(
@@ -62,7 +62,7 @@ def chat_json(system_prompt: str, user_content: str) -> dict:
                 {"role": "user", "content": user_content},
             ],
             "temperature": 0.1,
-            "max_tokens": 2048,
+            "max_tokens": max_tokens,
             # Qwen3 is a reasoning model that otherwise burns the token budget
             # on a separate `reasoning_content` field and can leave `content`
             # empty; we only ever parse `content`, so thinking mode is off.
@@ -71,5 +71,11 @@ def chat_json(system_prompt: str, user_content: str) -> dict:
         timeout=MODAL_TIMEOUT_SECONDS,
     )
     response.raise_for_status()
-    content = response.json()["choices"][0]["message"]["content"]
-    return _extract_json(content)
+    body = response.json()
+    content = body["choices"][0]["message"]["content"]
+    finish_reason = body["choices"][0].get("finish_reason")
+    try:
+        return _extract_json(content)
+    except json.JSONDecodeError as exc:
+        hint = " (response was truncated by max_tokens -- raise max_tokens or shrink the input)" if finish_reason == "length" else ""
+        raise ValueError(f"Model did not return valid JSON{hint}: {exc}. Raw content: {content[:500]!r}") from exc
