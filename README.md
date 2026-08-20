@@ -7,7 +7,7 @@ An AI-powered intelligence pipeline that discovers, filters, deduplicates, valid
 
 ## What it does
 
-Click "Generate Newsletter" and the app runs a full pipeline live: it searches the web for recent FMCG deal news, removes duplicate/near-duplicate coverage of the same story, filters out anything that isn't actually an FMCG deal, tags each source's credibility, and drafts a short structured newsletter — all in one run, saved with a timestamp so the UI always shows "last updated" alongside the latest edition.
+Click "Generate Edition" and the app runs a full pipeline live: it searches the web for recent FMCG deal news, removes duplicate/near-duplicate coverage of the same story, filters out anything that isn't actually an FMCG deal, tags each source's credibility, and drafts a short structured newsletter — all in one run, saved with a timestamp so the UI always shows "last updated" alongside the latest edition.
 
 ## Architecture
 
@@ -42,9 +42,9 @@ Everything runs **on-demand**: a user click triggers the full pipeline synchrono
 
 ### Modal cold starts
 
-The LLM container scales to zero when idle, so it isn't always warm. A fresh request wakes it, but that first request can 503 immediately while the container spins up (a 27B model's weights can take a couple of minutes to load), rather than queuing and waiting. In practice this means **Generate can fail if the model isn't already live**.
+The LLM container scales to zero when idle, so it isn't always warm. A fresh request wakes it, but that first request 503s immediately while the container spins up (a 27B model's weights can take a couple of minutes to load), rather than queuing and waiting.
 
-To make this visible, the UI has a **"Warm Up" / "Recheck"** control next to Generate (`ModalStatusBadge`) backed by `GET /api/modal-status` (`check_status()` in `backend/pipeline/modal_client.py`), which pings the endpoint's lightweight `/v1/models` route every 5 seconds — each ping also serves as a wake-up trigger — and shows a status dot: grey (unknown) → amber pulsing ("Starting…") → green ("Live"). Generate itself isn't blocked on this status; it's there so you can confirm the model is actually up before running the full pipeline instead of finding out via a failed run.
+To handle this without surfacing a failed run to the user, the **Generate** button is gated on model readiness. Next to it, a **"Warm Up" / "Recheck"** control (`ModalStatusBadge`) is backed by `GET /api/modal-status` (`check_status()` in `backend/pipeline/modal_client.py`), which pings the endpoint's lightweight `/v1/models` route — the ping itself is what triggers the container to start. This is manual, not automatic: nothing pings on page load, since a stray page visit shouldn't spin up a GPU container. Clicking "Warm Up" starts a poll every 5 seconds and the status dot moves grey ("Unknown") → amber pulsing ("Starting…") → green ("Live"); **Generate stays disabled, with an explanatory note, until the status reaches Live.**
 
 ## Pipeline: ingestion → cleaning → scoring → newsletter
 
