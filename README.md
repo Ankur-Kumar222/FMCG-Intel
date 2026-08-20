@@ -2,7 +2,7 @@
 
 An AI-powered intelligence pipeline that discovers, filters, deduplicates, validates, and summarizes recent FMCG M&A and investment activity into a concise business newsletter.
 
-- **Demo app**: _add Vercel URL after deploy_
+- **Demo app**: [fmcg-intel-nine.vercel.app](https://fmcg-intel-nine.vercel.app/)
 - **Repo**: this repository
 
 ## What it does
