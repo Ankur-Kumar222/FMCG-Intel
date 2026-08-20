@@ -12,6 +12,7 @@ from fastapi.responses import Response
 from backend.db.supabase_client import get_latest_run, get_run
 from backend.orchestrator import run_pipeline
 from backend.pipeline.export import MIME_TYPES, export_run
+from backend.pipeline.modal_client import check_status
 
 app = FastAPI(title="FMCG Deal Intelligence API")
 
@@ -21,6 +22,11 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.get("/api/modal-status")
+def modal_status():
+    return check_status()
 
 
 @app.post("/api/generate")

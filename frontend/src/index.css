@@ -116,6 +116,85 @@ body {
   opacity: 0.6;
 }
 
+/* ---------- Modal status ---------- */
+
+.modal-status {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  position: relative;
+}
+
+.modal-status-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--rule-soft);
+}
+
+.modal-status-dot.status-live {
+  background: var(--tier-b-ink);
+}
+
+.modal-status-dot.status-starting {
+  background: var(--tier-a-ink);
+  animation: pulse 1.2s ease-in-out infinite;
+}
+
+.modal-status-dot.status-error {
+  background: var(--accent-red);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.35;
+  }
+}
+
+.modal-status-label {
+  white-space: nowrap;
+}
+
+.modal-status-button {
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  font-size: 0.62rem;
+  background: transparent;
+  color: var(--ink);
+  border: 1px solid var(--rule);
+  padding: 0.3rem 0.55rem;
+  cursor: pointer;
+}
+
+.modal-status-button:hover:not(:disabled) {
+  background: var(--ink);
+  color: var(--paper);
+}
+
+.modal-status-button:disabled {
+  cursor: default;
+  opacity: 0.55;
+}
+
+.modal-status-detail {
+  position: absolute;
+  top: 130%;
+  right: 0;
+  width: 220px;
+  background: var(--paper);
+  border: 1px solid var(--accent-red);
+  color: var(--accent-red);
+  padding: 0.5rem 0.6rem;
+  font-size: 0.65rem;
+  text-transform: none;
+  letter-spacing: normal;
+  z-index: 5;
+}
+
 /* ---------- Notices ---------- */
 
 .correction-notice {

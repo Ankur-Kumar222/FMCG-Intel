@@ -3,6 +3,7 @@ import { NewsletterRun, fetchLatest, generateNewsletter } from "./api";
 import RunButton from "./components/RunButton";
 import NewsletterView from "./components/NewsletterView";
 import DownloadButtons from "./components/DownloadButtons";
+import ModalStatusBadge from "./components/ModalStatusBadge";
 
 const EDITION_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   weekday: "long",
@@ -56,6 +57,7 @@ export default function App() {
           {run ? `Latest edition filed ${new Date(run.created_at).toLocaleString()}` : "No edition on file"}
         </span>
         <div className="dateline-spacer" />
+        <ModalStatusBadge />
         <RunButton onClick={handleGenerate} loading={loading} />
       </div>
 

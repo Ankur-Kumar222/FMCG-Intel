@@ -13,6 +13,7 @@ import re
 import httpx
 
 MODAL_TIMEOUT_SECONDS = 120
+STATUS_CHECK_TIMEOUT_SECONDS = 10
 
 
 def _base_url() -> str:
@@ -47,6 +48,30 @@ def _extract_json(text: str) -> dict:
         if not match:
             raise
         return json.loads(match.group(0))
+
+
+def check_status() -> dict:
+    """Ping the endpoint's lightweight /v1/models route to see if the model
+    server is ready. A container scaled to zero returns 503 immediately
+    rather than queuing the request -- but the ping itself is what triggers
+    the container to start, so calling this repeatedly both checks status
+    and drives the wake-up."""
+    try:
+        response = httpx.get(
+            f"{_base_url()}/v1/models",
+            headers=_headers(),
+            timeout=STATUS_CHECK_TIMEOUT_SECONDS,
+        )
+    except httpx.TimeoutException:
+        return {"status": "starting"}
+    except httpx.HTTPError as exc:
+        return {"status": "error", "detail": str(exc)}
+
+    if response.status_code == 200:
+        return {"status": "live"}
+    if response.status_code == 503:
+        return {"status": "starting"}
+    return {"status": "error", "detail": f"unexpected status {response.status_code}"}
 
 
 def chat_json(system_prompt: str, user_content: str, max_tokens: int = 4096) -> dict:

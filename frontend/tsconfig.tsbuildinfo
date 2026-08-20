@@ -1,1 +1,1 @@
-{"root":["./src/app.tsx","./src/api.ts","./src/main.tsx","./src/components/downloadbuttons.tsx","./src/components/newsletterview.tsx","./src/components/runbutton.tsx"],"version":"5.9.3"}
+{"root":["./src/app.tsx","./src/api.ts","./src/main.tsx","./src/components/downloadbuttons.tsx","./src/components/modalstatusbadge.tsx","./src/components/newsletterview.tsx","./src/components/runbutton.tsx"],"version":"5.9.3"}

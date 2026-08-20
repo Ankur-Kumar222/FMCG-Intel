@@ -59,3 +59,12 @@ export function generateNewsletter(): Promise<NewsletterRun> {
 export function exportUrl(runId: string, format: "csv" | "json" | "docx"): string {
   return `/api/runs/${runId}/export?format=${format}`;
 }
+
+export interface ModalStatusResponse {
+  status: "live" | "starting" | "error";
+  detail?: string;
+}
+
+export function checkModalStatus(): Promise<ModalStatusResponse> {
+  return fetch("/api/modal-status").then((res) => handle<ModalStatusResponse>(res));
+}
