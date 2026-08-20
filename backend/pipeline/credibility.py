@@ -36,6 +36,7 @@ TIER_B_DOMAINS = {
     "consumergoods.com",
     "prnewswire.com",
     "businesswire.com",
+    "insidefmcg.com.au",
 }
 
 
