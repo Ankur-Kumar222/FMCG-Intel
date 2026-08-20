@@ -3,7 +3,7 @@ import { NewsletterRun, fetchLatest, generateNewsletter } from "./api";
 import RunButton from "./components/RunButton";
 import NewsletterView from "./components/NewsletterView";
 import DownloadButtons from "./components/DownloadButtons";
-import ModalStatusBadge from "./components/ModalStatusBadge";
+import ModalStatusBadge, { ModalStatus } from "./components/ModalStatusBadge";
 
 const EDITION_DATE_FORMAT: Intl.DateTimeFormatOptions = {
   weekday: "long",
@@ -17,6 +17,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [initialLoad, setInitialLoad] = useState(true);
+  const [modalStatus, setModalStatus] = useState<ModalStatus>("idle");
 
   useEffect(() => {
     fetchLatest()
@@ -40,6 +41,14 @@ export default function App() {
 
   const today = new Date().toLocaleDateString("en-US", EDITION_DATE_FORMAT);
 
+  const modelNotReady = modalStatus !== "live";
+  const generateDisabledReason =
+    modalStatus === "starting"
+      ? "Model is still starting up — wait for “Model: Live” before generating."
+      : modalStatus === "error"
+        ? "Model status check failed — try Recheck, or verify the Modal endpoint."
+        : "Click “Warm Up” to start the model, then wait for “Model: Live” before generating.";
+
   return (
     <div className="page">
       <div className="masthead">
@@ -57,9 +66,18 @@ export default function App() {
           {run ? `Latest edition filed ${new Date(run.created_at).toLocaleString()}` : "No edition on file"}
         </span>
         <div className="dateline-spacer" />
-        <ModalStatusBadge />
-        <RunButton onClick={handleGenerate} loading={loading} />
+        <ModalStatusBadge onStatusChange={setModalStatus} />
+        <RunButton
+          onClick={handleGenerate}
+          loading={loading}
+          disabled={modelNotReady}
+          disabledReason={generateDisabledReason}
+        />
       </div>
+
+      {modelNotReady && !loading && (
+        <p className="model-wait-note">{generateDisabledReason}</p>
+      )}
 
       {error && (
         <div className="correction-notice">

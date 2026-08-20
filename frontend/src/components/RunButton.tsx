@@ -1,12 +1,16 @@
 interface Props {
   onClick: () => void;
   loading: boolean;
+  disabled: boolean;
+  disabledReason?: string;
 }
 
-export default function RunButton({ onClick, loading }: Props) {
+export default function RunButton({ onClick, loading, disabled, disabledReason }: Props) {
   return (
-    <button className="run-button" onClick={onClick} disabled={loading}>
-      {loading ? "Printing…" : "Generate Edition"}
-    </button>
+    <span className="run-button-wrap" title={disabled && !loading ? disabledReason : undefined}>
+      <button className="run-button" onClick={onClick} disabled={loading || disabled}>
+        {loading ? "Printing…" : "Generate Edition"}
+      </button>
+    </span>
   );
 }

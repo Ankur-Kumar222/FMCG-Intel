@@ -116,6 +116,20 @@ body {
   opacity: 0.6;
 }
 
+.run-button-wrap {
+  display: inline-block;
+}
+
+.model-wait-note {
+  font-family: "DM Mono", monospace;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  letter-spacing: 0.05em;
+  color: var(--tier-a-ink);
+  text-align: right;
+  margin: -1.4rem 0 1.75rem;
+}
+
 /* ---------- Modal status ---------- */
 
 .modal-status {
